@@ -1,0 +1,15 @@
+node_modules
+.env
+config.json
+speech_keys.json
+takumi.mp3
+ytresult.json
+message.txt
+crunchy
+Crunchy_audio1
+Crunchy_audio2
+Crunchy_audio3
+Crunchy_audio4
+Crunchy_audio5
+Crunchy_audio6
+Crunchy_audio7
