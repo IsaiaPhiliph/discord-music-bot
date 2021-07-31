@@ -197,7 +197,7 @@ try {
 
     const serverQueue = queue.get(message.guild.id);
 
-    if (message.content.startsWith(`${prefix}p`)) {
+    if (message.content.startsWith(`${prefix}p `)) {
       execute(message, serverQueue);
       return;
     } else if (message.content.startsWith(`${prefix}saltar`)) {
@@ -206,11 +206,46 @@ try {
     } else if (message.content.startsWith(`${prefix}corta`)) {
       stop(message, serverQueue);
       return;
+    } else if (message.content.startsWith(`${prefix}buscar`)) {
+      youtubeSearch(message);
+    }
+    if (message.content.startsWith(`${prefix}ban `)) {
+      if (message.member.hasPermission("BAN_MEMBERS")) {
+        console.log(message.mentions.users.first());
+        if (message.mentions.users.first()) {
+          try {
+            message.guild.members.ban(message.mentions.users.first());
+            message.reply(
+              message.mentions.users.first().username + " fue mandado a su casa"
+            );
+          } catch (err) {
+            console.error(err);
+            message.reply(
+              "No tengo permisos para banear a " +
+                message.mentions.users.first().username
+            );
+          }
+        } else {
+          message.reply(
+            "No tienes permiso para banear a " +
+              message.mentions.users.first().username
+          );
+        }
+      } else {
+        message.reply(
+          "No tienes permiso para banear a " +
+            message.mentions.users.first().username
+        );
+      }
     } else {
       message.channel.send(
-        "Introduce un comando valido puto \nComandos validos:\n!p [url o búsqueda] (Reproduce una cancion)\n!saltar (Salta una canción en la cola)\n!corta (Parar el bot)\n"
+        "Introduce un comando valido puto \nComandos validos:\n!p [url o búsqueda] (Reproduce una canción)\n!saltar (Salta una canción en la cola)\n!corta (Parar el bot)\n"
       );
     }
+  });
+
+  client.on("error", (err) => {
+    console.error(err);
   });
 
   client.login(token);
@@ -242,11 +277,8 @@ async function execute(message, serverQueue) {
     };
   } else {
     const search = args.join(" ").replace("!p ", "");
-    console.log(search);
     const url = await getYoutubeUrlFromSearch(search);
-    console.log(url);
     songInfo = await ytdl.getInfo(url);
-    console.log(songInfo);
     song = {
       title: songInfo.videoDetails.title,
       url: songInfo.videoDetails.video_url,
@@ -309,6 +341,18 @@ function stop(message, serverQueue) {
 
   serverQueue.songs = [];
   serverQueue.connection?.dispatcher.end();
+}
+
+async function youtubeSearch(message) {
+  const search = message.content.replace("!buscar ", "");
+  const results = await youtubesearchapi.GetListByKeyword(search);
+  message.channel.send("Resultados de busqueda:");
+  let finalMessage = "";
+  results.items.forEach((item) => {
+    console.log(item);
+    finalMessage += item.title + "\n";
+  });
+  message.channel.send(finalMessage);
 }
 
 function play(guild, song) {
